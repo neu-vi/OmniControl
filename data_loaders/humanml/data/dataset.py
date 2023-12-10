@@ -98,8 +98,14 @@ class Text2MotionDatasetV2(data.Dataset):
 
         self.mean = mean
         self.std = std
-        self.raw_mean = np.load(pjoin(opt.data_root, 'Mean_raw.npy'))
-        self.raw_std = np.load(pjoin(opt.data_root, 'Std_raw.npy'))
+        if 'HumanML3D' in opt.data_root:
+            spatial_norm_path = './dataset/humanml_spatial_norm'
+        elif 'KIT' in opt.data_root:
+            spatial_norm_path = './dataset/kit_spatial_norm'
+        else:
+            raise NotImplementedError('unknown dataset')
+        self.raw_mean = np.load(pjoin(spatial_norm_path, 'Mean_raw.npy'))
+        self.raw_std = np.load(pjoin(spatial_norm_path, 'Std_raw.npy'))
         self.length_arr = np.array(length_list)
         self.data_dict = data_dict
         self.name_list = name_list

@@ -150,13 +150,13 @@ def main():
                 hint = model_kwargs['y']['hint']
                 # denormalize hint
                 if args.dataset == 'humanml':
-                    data_root = './dataset/HumanML3D'
+                    spatial_norm_path = './dataset/humanml_spatial_norm'
                 elif args.dataset == 'kit':
-                    data_root = './dataset/KIT-ML'
+                    spatial_norm_path = './dataset/kit_spatial_norm'
                 else:
-                    raise NotImplementedError
-                raw_mean = torch.from_numpy(np.load(pjoin(data_root, 'Mean_raw.npy'))).cuda()
-                raw_std = torch.from_numpy(np.load(pjoin(data_root, 'Std_raw.npy'))).cuda()
+                    raise NotImplementedError('unknown dataset')
+                raw_mean = torch.from_numpy(np.load(pjoin(spatial_norm_path, 'Mean_raw.npy'))).cuda()
+                raw_std = torch.from_numpy(np.load(pjoin(spatial_norm_path, 'Std_raw.npy'))).cuda()
                 mask = hint.view(hint.shape[0], hint.shape[1], n_joints, 3).sum(-1) != 0
                 hint = hint * raw_std + raw_mean
                 hint = hint.view(hint.shape[0], hint.shape[1], n_joints, 3) * mask.unsqueeze(-1)

@@ -183,7 +183,7 @@ It takes about 1.5 hours.
 
 
 ## Code pointer to the main module of OmniControl
-[Spatial Guidance](./diffusion/gaussian_diffusion.py#L472). (./diffusion/gaussian_diffusion.py#L472)  
+[Spatial Guidance](./diffusion/gaussian_diffusion.py#L450). (./diffusion/gaussian_diffusion.py#L450)  
 [Realism Guidance](./model/cmdm.py#L158). (./model/cmdm.py#L158)
 
 ## Acknowledgments

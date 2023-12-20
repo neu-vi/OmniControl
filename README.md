@@ -10,12 +10,11 @@
 ## Citation
 
 ```bibtex
-@misc{xie2023omnicontrol,
-  title={OmniControl: Control Any Joint at Any Time for Human Motion Generation},
-  author={Yiming Xie and Varun Jampani and Lei Zhong and Deqing Sun and Huaizu Jiang},
-  year={2023},
-  eprint={2310.08580},
-  archivePrefix={arXiv},
+@article{xie2023omnicontrol,
+  title={Omnicontrol: Control any joint at any time for human motion generation},
+  author={Xie, Yiming and Jampani, Varun and Zhong, Lei and Sun, Deqing and Jiang, Huaizu},
+  journal={arXiv preprint arXiv:2310.08580},
+  year={2023}
 }
 ```
 

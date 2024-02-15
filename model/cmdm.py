@@ -221,7 +221,10 @@ class CMDM(torch.nn.Module):
         if 'hint' in y.keys():
             control = self.cmdm_forward(x, timesteps, y)
         else:
-            control = None
+            n_joints = 22 if self.njoints == 263 else 21
+            y_ = {'hint': torch.zeros((x.shape[0], x.shape[-1], n_joints * 3), device=x.device)}
+            y_.update(y)
+            control = self.cmdm_forward(x, timesteps, y_)
         output = self.mdm_forward(x, timesteps, y, control)
         return output
 

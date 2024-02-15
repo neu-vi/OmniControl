@@ -162,15 +162,15 @@ class MixedPrecisionTrainer:
         self.model_params = list(self.model.parameters())
         self.master_params = self.model_params
         
-        trainable_params = []
-        keys = []
-        if 'zero_convs.0.weight' in self.model.state_dict().keys():
-            for key, value in self.model.named_parameters():
-                if 'input_hint_block' in key or 'c_input_process' in key or 'c_sequence_pos_encoder' in key or 'c_seqTransEncoder' in key or 'zero_convs' in key or 'c_embed_timestep' in key or 'c_embed_text' in key:
-                    trainable_params.append(value)
-                    keys.append(key)
-        else:
-            trainable_params = self.model_params
+        # trainable_params = []
+        # keys = []
+        # if 'zero_convs.0.weight' in self.model.state_dict().keys():
+        #     for key, value in self.model.named_parameters():
+        #         if 'input_hint_block' in key or 'c_input_process' in key or 'c_sequence_pos_encoder' in key or 'c_seqTransEncoder' in key or 'zero_convs' in key or 'c_embed_timestep' in key or 'c_embed_text' in key:
+        #             trainable_params.append(value)
+        #             keys.append(key)
+        # else:
+        trainable_params = self.model_params
         self.trainable_param = trainable_params
 
         self.param_groups_and_shapes = None

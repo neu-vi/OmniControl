@@ -10,11 +10,13 @@
 ## Citation
 
 ```bibtex
-@article{xie2023omnicontrol,
-  title={Omnicontrol: Control any joint at any time for human motion generation},
-  author={Xie, Yiming and Jampani, Varun and Zhong, Lei and Sun, Deqing and Jiang, Huaizu},
-  journal={arXiv preprint arXiv:2310.08580},
-  year={2023}
+@inproceedings{
+xie2024omnicontrol,
+title={OmniControl: Control Any Joint at Any Time for Human Motion Generation},
+author={Yiming Xie and Varun Jampani and Lei Zhong and Deqing Sun and Huaizu Jiang},
+booktitle={The Twelfth International Conference on Learning Representations},
+year={2024},
+url={https://openreview.net/forum?id=gd0lAEtWso}
 }
 ```
 

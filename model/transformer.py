@@ -77,9 +77,9 @@ class TransformerEncoder(nn.Module):
 
         for i, layer in enumerate(self.layers):
             output = layer(output, src_mask=mask,
-                           src_key_padding_mask=src_key_padding_mask, pos=pos)
+                           src_key_padding_mask=src_key_padding_mask, pos=pos) 
             if control is not None:
-                output = output + control[i]
+                output = output + control[i] #加入空间控制信号
 
             if self.return_intermediate:
                 intermediate.append(output)

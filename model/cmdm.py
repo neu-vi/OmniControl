@@ -139,7 +139,7 @@ class CMDM(torch.nn.Module):
         else:
             return cond
 
-    def encode_text(self, raw_text):
+    def encode_text(self, raw_text):#编码文本
         # raw_text - list (batch_size length) of strings with input text prompts
         device = next(self.parameters()).device
         max_text_len = 20 if self.dataset in ['humanml', 'kit'] else None  # Specific hardcoding for humanml dataset
@@ -167,16 +167,16 @@ class CMDM(torch.nn.Module):
 
         seq_mask = y['hint'].sum(-1) != 0
 
-        guided_hint = self.input_hint_block(y['hint'].float())  # [bs, d]
+        guided_hint = self.input_hint_block(y['hint'].float())  # [bs, d]相当于spatial encoder
 
         force_mask = y.get('uncond', False)
         if 'text' in self.cond_mode:
             enc_text = self.encode_text(y['text'])
-            emb += self.c_embed_text(self.mask_cond(enc_text, force_mask=force_mask))
+            emb += self.c_embed_text(self.mask_cond(enc_text, force_mask=force_mask)) #文本嵌入和时间步嵌入直接相加
 
         x = self.c_input_process(x)
 
-        x += guided_hint * seq_mask.permute(1, 0).unsqueeze(-1)
+        x += guided_hint * seq_mask.permute(1, 0).unsqueeze(-1) #加入条件c，mask后
 
         # adding the timestep embed
         xseq = torch.cat((emb, x), axis=0)  # [seqlen+1, bs, d]
@@ -218,7 +218,7 @@ class CMDM(torch.nn.Module):
         x: [batch_size, njoints, nfeats, max_frames], denoted x_t in the paper
         timesteps: [batch_size] (int)
         """
-        if 'hint' in y.keys():
+        if 'hint' in y.keys(): #如果有空间信号c，则进入计算controlnet输出
             control = self.cmdm_forward(x, timesteps, y)
         else:
             n_joints = 22 if self.njoints == 263 else 21

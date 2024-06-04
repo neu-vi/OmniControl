@@ -29,5 +29,5 @@ class ClassifierFreeSampleModel(nn.Module):
         y_uncond['uncond'] = True
         out = self.model(x, timesteps, y)
         out_uncond = self.model(x, timesteps, y_uncond)
-        return out_uncond + (y['scale'].view(-1, 1, 1, 1) * (out - out_uncond))
+        return out_uncond + (y['scale'].view(-1, 1, 1, 1) * (out - out_uncond)) #结合有条件和无条件输出
 

@@ -440,7 +440,7 @@ class GaussianDiffusion:
             x.detach()
         return loss, grad
 
-    def calc_grad_scale(self, mask_hint):
+    def calc_grad_scale(self, mask_hint): #计算每个样本在所有时间步上的最大关键帧数量，适当缩放
         assert mask_hint.shape[1] == 196
         num_keyframes = mask_hint.sum(dim=1).squeeze(-1)
         max_keyframes = num_keyframes.max(dim=1)[0]
@@ -458,7 +458,7 @@ class GaussianDiffusion:
         if model_variance[0, 0, 0, 0] < min_variance:
             model_variance = min_variance
 
-        if train:
+        if train: #进行K次扰动
             if t[0] < 20:
                 n_guide_steps = 100
             else:
@@ -470,14 +470,14 @@ class GaussianDiffusion:
                 n_guide_steps = 10
 
         # process hint
-        hint = model_kwargs['y']['hint'].clone().detach()
-        mask_hint = hint.view(hint.shape[0], hint.shape[1], n_joint, 3).sum(dim=-1, keepdim=True) != 0
+        hint = model_kwargs['y']['hint'].clone().detach() #获取hint
+        mask_hint = hint.view(hint.shape[0], hint.shape[1], n_joint, 3).sum(dim=-1, keepdim=True) != 0 #使用掩码标记哪些关节有指导信息，对最后一个维度求和，结果不为0，则表示有指导信息
         if self.raw_std.device != hint.device:
-            self.raw_mean = self.raw_mean.to(hint.device)
+            self.raw_mean = self.raw_mean.to(hint.device) #带raw的是全局位置的平均值，不带的是相对位置的平均值
             self.raw_std = self.raw_std.to(hint.device)
             self.mean = self.mean.to(hint.device)
             self.std = self.std.to(hint.device)
-        hint = hint * self.raw_std + self.raw_mean
+        hint = hint * self.raw_std + self.raw_mean #将标准化的hint恢复到原来尺度
         hint = hint.view(hint.shape[0], hint.shape[1], n_joint, 3) * mask_hint
         # joint id
         joint_ids = []
@@ -486,7 +486,7 @@ class GaussianDiffusion:
             joint_ids.append(joint_id)
         
         if not train:
-            scale = self.calc_grad_scale(mask_hint)
+            scale = self.calc_grad_scale(mask_hint) #强度tao
 
         for _ in range(n_guide_steps):
             loss, grad = self.gradients(x, hint, mask_hint, joint_ids)
@@ -532,9 +532,9 @@ class GaussianDiffusion:
             denoised_fn=denoised_fn,
             model_kwargs=model_kwargs,
         )
-        if 'hint' in model_kwargs['y'].keys():
+        if 'hint' in model_kwargs['y'].keys(): #key里有hint说明使用了spatial guidance
             # spatial guidance/classifier guidance
-            out['mean'] = self.guide(out['mean'], t, model_kwargs=model_kwargs)
+            out['mean'] = self.guide(out['mean'], t, model_kwargs=model_kwargs) #根据spatial guidance修改均值
 
         if const_noise:
             noise = th.randn_like(x[0])

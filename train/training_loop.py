@@ -79,6 +79,9 @@ class TrainLoop:
     def _load_and_sync_parameters(self):
         resume_checkpoint = find_resume_checkpoint() or self.resume_checkpoint
 
+        logger.configure('save/log')
+
+
         if resume_checkpoint:
             self.resume_step = parse_resume_step_from_filename(resume_checkpoint)
             logger.log(f"loading model from checkpoint: {resume_checkpoint}...")
@@ -103,7 +106,7 @@ class TrainLoop:
     def run_loop(self):
 
         for epoch in range(self.num_epochs):
-            print(f'Starting epoch {epoch}')
+            logger.log(f'Starting epoch {epoch}')
             for motion, cond in tqdm(self.data):
                 if not (not self.lr_anneal_steps or self.step + self.resume_step < self.lr_anneal_steps):
                     break
@@ -115,7 +118,7 @@ class TrainLoop:
                 if self.step % self.log_interval == 0:
                     for k,v in logger.get_current().name2val.items():
                         if k == 'loss':
-                            print('step[{}]: loss[{:0.5f}]'.format(self.step+self.resume_step, v))
+                            logger.log('step[{}]: loss[{:0.5f}]'.format(self.step+self.resume_step, v))
 
                         if k in ['step', 'samples'] or '_q' in k:
                             continue
@@ -180,7 +183,7 @@ class TrainLoop:
                 )
 
             loss = (losses["loss"] * weights).mean()
-            print(loss.item())
+            logger.log(loss.item())
             log_loss_dict(
                 self.diffusion, t, {k: v * weights for k, v in losses.items()}
             )

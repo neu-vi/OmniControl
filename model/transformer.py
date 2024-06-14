@@ -79,7 +79,7 @@ class TransformerEncoder(nn.Module):
             output = layer(output, src_mask=mask,
                            src_key_padding_mask=src_key_padding_mask, pos=pos) 
             if control is not None:
-                output = output + control[i] #加入空间控制信号
+                output = output + control[i] #计算主分支时，才加入空间控制信号的结果
 
             if self.return_intermediate:
                 intermediate.append(output)

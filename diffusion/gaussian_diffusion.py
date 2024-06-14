@@ -433,8 +433,8 @@ class GaussianDiffusion:
                 joint_pos = joint_pos * 0.001
                 hint = hint * 0.001
 
-            loss = torch.norm((joint_pos - hint) * mask_hint, dim=-1) #对应于函数G
-            grad = torch.autograd.grad([loss.sum()], [x])[0] #计算对x的梯度，即传入的均值
+            loss = torch.norm((joint_pos - hint) * mask_hint, dim=-1) #对应于函数G[bs,seqlen,njoints]
+            grad = torch.autograd.grad([loss.sum()], [x])[0] #计算对x的梯度，即传入的均值[bs,263,1,seqlen]
             # the motion in HumanML3D always starts at the origin (0,y,0), so we zero out the gradients for the root joint
             grad[..., 0] = 0
             x.detach()
@@ -459,7 +459,7 @@ class GaussianDiffusion:
             model_variance = min_variance
 
         if train: #进行K次扰动
-            if t[0] < 20:
+            if t[0] < 20: #t[0]代表当前时间步t
                 n_guide_steps = 100
             else:
                 n_guide_steps = 20
@@ -470,15 +470,15 @@ class GaussianDiffusion:
                 n_guide_steps = 10
 
         # process hint
-        hint = model_kwargs['y']['hint'].clone().detach() #获取hint
-        mask_hint = hint.view(hint.shape[0], hint.shape[1], n_joint, 3).sum(dim=-1, keepdim=True) != 0 #使用掩码标记哪些关节有指导信息，对最后一个维度求和，结果不为0，则表示有指导信息
+        hint = model_kwargs['y']['hint'].clone().detach() #获取hint [bs,seqlen,njoints*3]
+        mask_hint = hint.view(hint.shape[0], hint.shape[1], n_joint, 3).sum(dim=-1, keepdim=True) != 0 #[bs,seqlen,njoints,1]使用掩码标记哪些关节有指导信息，对最后一个维度求和，结果不为0，则表示有指导信息
         if self.raw_std.device != hint.device:
             self.raw_mean = self.raw_mean.to(hint.device) #带raw的是全局位置的平均值，不带的是相对位置的平均值
             self.raw_std = self.raw_std.to(hint.device)
             self.mean = self.mean.to(hint.device)
             self.std = self.std.to(hint.device)
         hint = hint * self.raw_std + self.raw_mean #将标准化的hint恢复到原来尺度
-        hint = hint.view(hint.shape[0], hint.shape[1], n_joint, 3) * mask_hint
+        hint = hint.view(hint.shape[0], hint.shape[1], n_joint, 3) * mask_hint #[bs,seqlen,njoints,3]
         # joint id
         joint_ids = []
         for m in mask_hint:

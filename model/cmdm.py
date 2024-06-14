@@ -167,26 +167,26 @@ class CMDM(torch.nn.Module):
 
         seq_mask = y['hint'].sum(-1) != 0
 
-        guided_hint = self.input_hint_block(y['hint'].float())  # [bs, d]相当于spatial encoder
+        guided_hint = self.input_hint_block(y['hint'].float())  # [nframe,bs, d]相当于spatial encoder
 
         force_mask = y.get('uncond', False)
         if 'text' in self.cond_mode:
-            enc_text = self.encode_text(y['text'])
+            enc_text = self.encode_text(y['text']) #[bs,d]
             emb += self.c_embed_text(self.mask_cond(enc_text, force_mask=force_mask)) #文本嵌入和时间步嵌入直接相加
 
-        x = self.c_input_process(x)
+        x = self.c_input_process(x) #[nframe,bs,d]
 
         x += guided_hint * seq_mask.permute(1, 0).unsqueeze(-1) #加入条件c，mask后
 
         # adding the timestep embed
         xseq = torch.cat((emb, x), axis=0)  # [seqlen+1, bs, d]
         xseq = self.c_sequence_pos_encoder(xseq)  # [seqlen+1, bs, d]
-        output = self.c_seqTransEncoder(xseq)  # [seqlen+1, bs, d]
+        output = self.c_seqTransEncoder(xseq)  # [8,seqlen+1, bs, d]
 
         control = []
         for i, module in enumerate(self.zero_convs):
             control.append(module(output[i]))
-        control = torch.stack(control)
+        control = torch.stack(control) #[8,seqlen+1,bs,d]
 
         control = control * weight
         return control

@@ -132,7 +132,7 @@ def main():
             n_joints = 22 if sample.shape[1] == 263 else 21
             sample = data.dataset.t2m_dataset.inv_transform(sample.cpu().permute(0, 2, 3, 1)).float()
             sample = recover_from_ric(sample, n_joints)
-            sample = sample.view(-1, *sample.shape[2:]).permute(0, 2, 3, 1)
+            sample = sample.view(-1, *sample.shape[2:]).permute(0, 2, 3, 1) #[bs,njoints,3,seqlen]
 
         rot2xyz_pose_rep = 'xyz' if model.data_rep in ['xyz', 'hml_vec'] else model.data_rep
         rot2xyz_mask = None if rot2xyz_pose_rep == 'xyz' else model_kwargs['y']['mask'].reshape(args.batch_size, n_frames).bool()
@@ -173,7 +173,7 @@ def main():
 
 
     all_motions = np.concatenate(all_motions, axis=0)
-    all_motions = all_motions[:total_num_samples]  # [bs, njoints, 6, seqlen]
+    all_motions = all_motions[:total_num_samples]  # [bs, njoints, 3, seqlen]
     all_text = all_text[:total_num_samples]
     all_lengths = np.concatenate(all_lengths, axis=0)[:total_num_samples]
     if 'hint' in model_kwargs['y']:

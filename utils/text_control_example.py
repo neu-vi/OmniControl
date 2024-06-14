@@ -134,7 +134,7 @@ def combination_text_control_example(n_frames=120, raw_mean=None, raw_std=None, 
     return text, control_full, joint_id
 
 
-def pelvis_dense_text_control_example(n_frames=120, raw_mean=None, raw_std=None, index=0):
+def pelvis_dense_text_control_example(n_frames=120, raw_mean=None, raw_std=None, index=0): #实现根关节的密集控制
     text = [
         # pelvis
         'a person plays a violin with their left hand in the air and their right hand holding the bow',
@@ -170,16 +170,17 @@ def pelvis_dense_text_control_example(n_frames=120, raw_mean=None, raw_std=None,
 
     # sparsify
     # early stop for case 2
-    control[2, 140:] = control[2, 139:140]
-
+    control[2, 140:] = control[2, 139:140] 
+    
+    #取了第一个
     text = text[index:index+1]
-    control = control[index:index+1]
+    control = control[index:index+1] #只包含受控关节的全局位置
 
     # normalize
     control_full = np.zeros((len(control), n_frames, 22, 3)).astype(np.float32)
     for i in range(len(control)):
-        mask = control[i].sum(-1) != 0
-        control_ = (control[i] - raw_mean.reshape(22, 1, 3)[joint_id[i]]) / raw_std.reshape(22, 1, 3)[joint_id[i]]
+        mask = control[i].sum(-1) != 0 #判断在每帧上是否有指导信息
+        control_ = (control[i] - raw_mean.reshape(22, 1, 3)[joint_id[i]]) / raw_std.reshape(22, 1, 3)[joint_id[i]] #归一化
         control_ = control_ * mask[..., np.newaxis]
         control_full[i, :, joint_id[i], :] = control_
 

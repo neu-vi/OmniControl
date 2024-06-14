@@ -360,20 +360,20 @@ def process_file(positions, feet_thre):
 # local_velocity (B, seq_len, joint_num*3)
 # foot contact (B, seq_len, 4)
 def recover_root_rot_pos(data):
-    rot_vel = data[..., 0]
+    rot_vel = data[..., 0] #获取根关节绕y轴旋转角速度
     r_rot_ang = torch.zeros_like(rot_vel).to(data.device)
     '''Get Y-axis rotation from rotation velocity'''
     r_rot_ang[..., 1:] = rot_vel[..., :-1]
-    r_rot_ang = torch.cumsum(r_rot_ang, dim=-1)
+    r_rot_ang = torch.cumsum(r_rot_ang, dim=-1) #积分求得旋转角度
 
     r_rot_quat = torch.zeros(data.shape[:-1] + (4,)).to(data.device)
     r_rot_quat[..., 0] = torch.cos(r_rot_ang)
-    r_rot_quat[..., 2] = torch.sin(r_rot_ang)
+    r_rot_quat[..., 2] = torch.sin(r_rot_ang)# 将旋转角度转换为四元数
 
     r_pos = torch.zeros(data.shape[:-1] + (3,)).to(data.device)
     r_pos[..., 1:, [0, 2]] = data[..., :-1, 1:3]
     '''Add Y-axis rotation to root position'''
-    r_pos = qrot(qinv(r_rot_quat), r_pos)
+    r_pos = qrot(qinv(r_rot_quat), r_pos) 
 
     r_pos = torch.cumsum(r_pos, dim=-2)
 
@@ -415,7 +415,7 @@ def recover_rot(data):
 def recover_from_ric(data, joints_num):
     r_rot_quat, r_pos = recover_root_rot_pos(data)
     positions = data[..., 4:(joints_num - 1) * 3 + 4]
-    positions = positions.view(positions.shape[:-1] + (-1, 3))
+    positions = positions.view(positions.shape[:-1] + (-1, 3)) #[bs,seqlen,njoints-1,3]除根关节以外的关节的局部坐标
 
     '''Add Y-axis rotation to local joints'''
     positions = qrot(qinv(r_rot_quat[..., None, :]).expand(positions.shape[:-1] + (4,)), positions)

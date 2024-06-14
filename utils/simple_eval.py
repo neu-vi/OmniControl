@@ -5,6 +5,7 @@ import numpy as np
 # raw_mean = np.load(pjoin(data_root, 'Mean_raw.npy'))
 # raw_std = np.load(pjoin(data_root, 'Std_raw.npy'))
 
+#计算motion和hint之间的差异
 def simple_eval(motion, hint, n_joints=22):
     # mask = hint != 0
     # hint = hint * raw_std + raw_mean

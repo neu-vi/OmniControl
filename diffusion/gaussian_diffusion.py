@@ -717,7 +717,7 @@ class GaussianDiffusion:
         x_t = self.guide(x_t, t, model_kwargs=model_kwargs, train=True)
         terms = {}
 
-        model_output = model(x_t, self._scale_timesteps(t), **model_kwargs)
+        model_output = model(x_t, self._scale_timesteps(t), **model_kwargs) #经过MDM预测后的结果[bs,d,1,seqlen]
 
         target = {
             ModelMeanType.PREVIOUS_X: self.q_posterior_mean_variance(
@@ -728,7 +728,7 @@ class GaussianDiffusion:
         }[self.model_mean_type]
         assert model_output.shape == target.shape == x_start.shape  # [bs, njoints, nfeats, nframes]
 
-        terms["rot_mse"] = self.masked_l2(target, model_output, mask) # mean_flat(rot_mse)
+        terms["rot_mse"] = self.masked_l2(target, model_output, mask) # mean_flat(rot_mse) 给定掩码条件下的L2损失
 
         terms["loss"] = terms["rot_mse"]
 

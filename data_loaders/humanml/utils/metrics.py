@@ -67,6 +67,7 @@ def calculate_activation_statistics(activations):
     -- mu: dim_feat
     -- sigma: dim_feat x dim_feat
     """
+    activations = activations[np.isfinite(activations).all(axis=1)] 
     mu = np.mean(activations, axis=0)
     cov = np.cov(activations, rowvar=False)
     return mu, cov

@@ -428,13 +428,13 @@ class GaussianDiffusion:
             x_ = x_.squeeze(2)
             x_ = x_ * self.std + self.mean
             n_joints = 22 if x_.shape[-1] == 263 else 21
-            joint_pos = recover_from_ric(x_, n_joints)
+            joint_pos = recover_from_ric(x_, n_joints) #恢复全局位置
             if n_joints == 21:
                 joint_pos = joint_pos * 0.001
                 hint = hint * 0.001
 
-            loss = torch.norm((joint_pos - hint) * mask_hint, dim=-1)
-            grad = torch.autograd.grad([loss.sum()], [x])[0]
+            loss = torch.norm((joint_pos - hint) * mask_hint, dim=-1) #对应于函数G
+            grad = torch.autograd.grad([loss.sum()], [x])[0] #计算对x的梯度，即传入的均值
             # the motion in HumanML3D always starts at the origin (0,y,0), so we zero out the gradients for the root joint
             grad[..., 0] = 0
             x.detach()

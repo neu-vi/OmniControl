@@ -44,6 +44,9 @@ def evaluate_matching_score(eval_wrapper, motion_loaders, file):
                 )
                 dist_mat = euclidean_distance_matrix(text_embeddings.cpu().numpy(),
                                                      motion_embeddings.cpu().numpy())
+                if np.isnan(dist_mat).any() or np.isinf(dist_mat).any():
+                    continue
+                
                 matching_score_sum += dist_mat.trace()
 
                 argsmax = np.argsort(dist_mat, axis=1)
@@ -159,14 +162,14 @@ def evaluate_fid(eval_wrapper, groundtruth_loader, activation_dict, file):
     gt_motion_embeddings = []
     print('========== Evaluating FID ==========')
     with torch.no_grad():
-        for idx, batch in enumerate(groundtruth_loader):
+        for idx, batch in enumerate(groundtruth_loader): #获取gt样本
             _, _, _, sent_lens, motions, m_lens, _, _ = batch
             motion_embeddings = eval_wrapper.get_motion_embeddings(
                 motions=motions,
                 m_lens=m_lens
             )
             gt_motion_embeddings.append(motion_embeddings.cpu().numpy())
-    gt_motion_embeddings = np.concatenate(gt_motion_embeddings, axis=0)
+    gt_motion_embeddings = np.concatenate(gt_motion_embeddings, axis=0) 
     gt_mu, gt_cov = calculate_activation_statistics(gt_motion_embeddings)
 
     # print(gt_mu)

@@ -33,7 +33,7 @@ class MMGeneratedDataset(Dataset):
             #                              ], axis=0)
             motion = motion[None, :]
             motions.append(motion)
-        m_lens = np.array(m_lens, dtype=np.int)
+        m_lens = np.array(m_lens, dtype=int)
         motions = np.concatenate(motions, axis=0)
         sort_indx = np.argsort(m_lens)[::-1].copy()
         # print(m_lens)
